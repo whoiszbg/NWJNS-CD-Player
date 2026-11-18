@@ -139,8 +139,8 @@ h3 {
   position: absolute;
   width: 82%;
   height: 82%;
-  left: 50%;
-  top: 50%;
+  left: 162px;
+  top: 159px;
   transform: translate(calc(-50% + var(--disc-x)), calc(-50% + var(--disc-y)));
   object-fit: contain;
   z-index: 1;
