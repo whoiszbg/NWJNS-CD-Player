@@ -1,0 +1,956 @@
+/* ========================================
+   NWJNS CD PLAYER
+======================================== */
+:root {
+  --ink: #090909;
+  --lime: #f2ff76;
+  --blue: #8ee7ff;
+  --player-width: 100%;
+  --player-min-height: 535px;
+  --player-x: 0px;
+  --player-y: 0px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: 'Montserrat', sans-serif;
+  background-image: radial-gradient(#ffffff 1.7px, transparent 1.7px), linear-gradient(180deg, #eafaff 0%, #83dfff 100%);
+  background-size: 20px 20px, 100% 100%;
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* VIDEO BACKGROUND */
+.video-background {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.video-background video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.video-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(142, 231, 255, 0.2);
+  pointer-events: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Archivo Black', sans-serif;
+}
+
+.frame {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: clamp(16px, 3.5vw, 48px);
+  padding-left: max(clamp(16px, 3.5vw, 48px), env(safe-area-inset-left));
+  padding-right: max(clamp(16px, 3.5vw, 48px), env(safe-area-inset-right));
+  padding-bottom: max(clamp(24px, 5vw, 64px), env(safe-area-inset-bottom));
+}
+
+.frame>div {
+  max-width: 1330px;
+  margin: 0 auto;
+}
+
+/* PLAYER */
+.player {
+  width: var(--player-width);
+  min-height: auto;
+  position: relative;
+  left: var(--player-x);
+  top: var(--player-y);
+  z-index: 5;
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(145deg, #fff 0%, #ffffd0 48%, #f8ff6a 100%);
+  border: 2px solid #111;
+  border-radius: clamp(20px, 4vw, 30px);
+  box-shadow: 0 8px 0 rgba(0, 0, 0, .08);
+}
+
+.player .font-black {
+  font-weight: 900;
+  letter-spacing: -.8px;
+}
+
+#trackTitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(20px, 4vw, 24px);
+  font-weight: 900;
+  letter-spacing: -.5px;
+}
+
+#trackArtist {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* CD IN PLAYER */
+.disc-stage {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: clamp(210px, 60vw, 320px);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.album-art {
+  --disc-x: 0px;
+  --disc-y: 0px;
+  position: absolute;
+  width: 82%;
+  height: 82%;
+  left: 50%;
+  top: 50%;
+  transform: translate(calc(-50% + var(--disc-x)), calc(-50% + var(--disc-y)));
+  object-fit: contain;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.album-art.inserted {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.album-art.is-playing {
+  /* rotation driven by JS via --disc-angle; no CSS animation needed */
+}
+
+/* JS writes transform directly; this keyframe is kept only as fallback */
+@keyframes disc-spin {
+  from { transform: translate(calc(-50% + var(--disc-x)), calc(-50% + var(--disc-y))) rotate(0deg); }
+  to   { transform: translate(calc(-50% + var(--disc-x)), calc(-50% + var(--disc-y))) rotate(360deg); }
+}
+
+.player-case {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.empty-art {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  border: 2px dashed #1116;
+  border-radius: 15px;
+  background: #ffffff80;
+}
+
+.empty-art.hidden {
+  display: none;
+}
+
+.player.drag-over {
+  outline: 4px dashed #6ab9d5;
+  outline-offset: 5px;
+}
+
+/* WAVEFORM */
+.wave {
+  height: clamp(34px, 6vw, 42px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.5px, 0.5vw, 3px);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.wave i {
+  width: clamp(2px, 0.5vw, 3px);
+  height: var(--h);
+  border-radius: 9px;
+  background: #111;
+  transform: scaleY(0.22);
+  transform-origin: center center;
+  transition: transform 0.35s ease, opacity 0.35s ease, background 0.25s ease;
+  opacity: 0.35;
+  flex-shrink: 0;
+}
+
+.wave.is-playing i {
+  opacity: 1;
+  animation: wave-dance-1 0.8s ease-in-out infinite alternate;
+  animation-delay: var(--d);
+}
+
+.wave.is-playing i:nth-child(2n) {
+  animation-name: wave-dance-2;
+  animation-duration: 0.65s;
+}
+
+.wave.is-playing i:nth-child(3n) {
+  animation-name: wave-dance-3;
+  animation-duration: 0.95s;
+}
+
+.wave.is-playing i:nth-child(4n) {
+  animation-name: wave-dance-4;
+  animation-duration: 0.75s;
+}
+
+.wave i:nth-child(n+17) {
+  background: #a8a8a8;
+}
+
+.wave i.played {
+  background: #111;
+}
+
+.wave i.unplayed {
+  background: #a8a8a8;
+}
+
+@keyframes wave-dance-1 {
+  0% {
+    transform: scaleY(0.2);
+  }
+  50% {
+    transform: scaleY(1.15);
+  }
+  100% {
+    transform: scaleY(0.4);
+  }
+}
+
+@keyframes wave-dance-2 {
+  0% {
+    transform: scaleY(0.7);
+  }
+  40% {
+    transform: scaleY(0.18);
+  }
+  80% {
+    transform: scaleY(1.25);
+  }
+  100% {
+    transform: scaleY(0.5);
+  }
+}
+
+@keyframes wave-dance-3 {
+  0% {
+    transform: scaleY(0.35);
+  }
+  60% {
+    transform: scaleY(1.2);
+  }
+  100% {
+    transform: scaleY(0.25);
+  }
+}
+
+@keyframes wave-dance-4 {
+  0% {
+    transform: scaleY(0.9);
+  }
+  30% {
+    transform: scaleY(0.3);
+  }
+  70% {
+    transform: scaleY(1.1);
+  }
+  100% {
+    transform: scaleY(0.35);
+  }
+}
+
+/* ALBUM CATEGORIES */
+.album-category {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.album-category:focus-visible {
+  z-index: 10;
+}
+
+.album-strip {
+  display: block;
+  width: 100%;
+  height: auto;
+
+  object-fit: contain;
+
+  border: clamp(2px, 0.4vw, 3px) ridge #aaa;
+  box-shadow: 0 4px 6px #0003;
+  background: #fff;
+
+  transform: scale(1);
+  transform-origin: center center;
+  transition: transform .28s cubic-bezier(0.25, 1, 0.5, 1),
+              box-shadow .28s cubic-bezier(0.25, 1, 0.5, 1),
+              filter .28s ease;
+  will-change: transform;
+}
+
+.album-category:active .album-strip {
+  transform: scale(0.99);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+  transition-duration: .1s;
+}
+
+.album-category.active .album-strip {
+  outline: none;
+  outline-offset: 2px;
+}
+
+.album-list {
+  overflow: hidden;
+  max-height: 1200px;
+  opacity: 1;
+  padding: 8px 12px;
+  margin: -8px -12px;
+  transition: max-height .45s ease, opacity .35s ease, padding .35s ease;
+}
+
+.album-list.closed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+
+.album-toggle {
+  font-family: 'Special Gothic Expanded One', sans-serif;
+  font-size: clamp(20px, 4.5vw, 38px);
+  font-weight: 500;
+  color: #d9ffae;
+  -webkit-text-stroke: 1px #000;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* CD SHELF: clear transparent acrylic shelf & jewel case showcase */
+.shelf-heading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto 16px;
+  padding: 7px 22px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.25) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 9999px;
+  box-shadow: 
+    0 4px 16px rgba(0, 30, 60, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: clamp(11px, 2.2vw, 13px);
+  font-weight: 900;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #111;
+}
+
+.shelf-display-rack {
+  position: relative;
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px 14px 28px;
+  background: linear-gradient(145deg, 
+    rgba(255, 255, 255, 0.48) 0%, 
+    rgba(255, 255, 255, 0.16) 45%, 
+    rgba(225, 248, 255, 0.28) 100%
+  );
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: clamp(20px, 3.5vw, 32px);
+  box-shadow: 
+    0 20px 48px -10px rgba(0, 35, 75, 0.13),
+    0 4px 16px rgba(0, 0, 0, 0.03),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 6px rgba(0, 40, 80, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Clear Acrylic Shelf Bottom Ledge */
+.shelf-display-rack::after {
+  content: "";
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 14px;
+  height: 9px;
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(210, 242, 255, 0.45) 45%, 
+    rgba(145, 220, 255, 0.55) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 5px;
+  box-shadow: 
+    0 4px 10px rgba(0, 30, 60, 0.09),
+    inset 0 1px 1px #fff;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.shelf-track {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 30px);
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 14px 24px;
+  width: 100%;
+  scrollbar-width: none;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  z-index: 2;
+}
+
+/* Custom subtle scrollbar */
+.shelf-track::-webkit-scrollbar {
+  height: 6px;
+}
+
+.shelf-track::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.shelf-track::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 9999px;
+}
+
+.shelf-track::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.38);
+}
+
+.shelf-nav-btn {
+  position: relative;
+  flex-shrink: 0;
+  width: clamp(40px, 5vw, 48px);
+  height: clamp(40px, 5vw, 48px);
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.35) 100%);
+  color: #111;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(0, 30, 60, 0.1), inset 0 1.5px 2px #fff;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.shelf-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.98);
+  transform: scale(1.1);
+  box-shadow: 0 6px 22px rgba(0, 30, 60, 0.16), inset 0 1.5px 2px #fff;
+}
+
+.shelf-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.shelf-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cd-item {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(200px, 28vw, 270px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+  scroll-snap-align: center;
+  z-index: 1;
+}
+
+/* Floor contact shadow under each standing case */
+.cd-item::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 10%;
+  right: 10%;
+  height: 12px;
+  background: radial-gradient(ellipse at center, rgba(0, 35, 75, 0.28) 0%, transparent 75%);
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+  transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.28s ease;
+}
+
+.cd-item:focus-visible {
+  z-index: 10;
+}
+
+/* TRANSPARENT JEWEL CASE */
+.case-stack {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  margin: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.52) 0%, 
+    rgba(240, 250, 255, 0.16) 42%, 
+    rgba(255, 255, 255, 0.32) 100%
+  );
+  border: 1.5px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 
+    0 14px 28px -4px rgba(0, 25, 60, 0.17),
+    0 4px 10px rgba(0, 0, 0, 0.06),
+    inset 0 2px 3px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  overflow: hidden;
+  transform: scale(1);
+  transform-origin: center bottom;
+  transition: transform .28s cubic-bezier(0.25, 1, 0.5, 1),
+              box-shadow .28s cubic-bezier(0.25, 1, 0.5, 1),
+              filter .28s ease,
+              border-color .25s ease;
+  will-change: transform;
+  z-index: 1;
+}
+
+/* Frosted Ribbed Spine Hinge (Classic CD Jewel Case Edge) */
+.case-stack::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 13px;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0px,
+    rgba(255, 255, 255, 0.5) 2.5px,
+    rgba(0, 0, 0, 0.04) 2.5px,
+    rgba(0, 0, 0, 0.04) 5px
+  );
+  border-right: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: inset 1px 0 2px rgba(255, 255, 255, 0.85);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Glossy Diagonal Glass Glare Reflection */
+.case-stack::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    122deg,
+    transparent 14%,
+    rgba(255, 255, 255, 0.44) 38%,
+    rgba(255, 255, 255, 0.1) 48%,
+    transparent 62%
+  );
+  z-index: 4;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+/* Center Plastic Spindle Hub */
+.shelf-hub {
+  position: absolute;
+  width: 25%;
+  height: 25%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  box-shadow: 
+    inset 0 0 6px rgba(0, 0, 0, 0.12),
+    0 0 0 4px rgba(255, 255, 255, 0.28),
+    0 0 0 7px rgba(0, 0, 0, 0.03);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 70%, transparent 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Currently Playing / Inserted CD Aura */
+.cd-item.active-cd .case-stack {
+  border-color: rgba(142, 231, 255, 0.9);
+  box-shadow: 
+    0 0 26px rgba(142, 231, 255, 0.5),
+    0 14px 28px -4px rgba(0, 25, 60, 0.18),
+    inset 0 2px 3px rgba(255, 255, 255, 0.95);
+}
+
+.cd-item:active .case-stack {
+  transform: scale(0.98);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.16));
+  transition-duration: .1s;
+}
+
+.shelf-disc {
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  z-index: 1;
+  cursor: grab;
+  touch-action: none;
+  transition: opacity .25s ease;
+}
+
+.shelf-case {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.shelf-disc.taken {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cd-item:active {
+  cursor: grabbing;
+}
+
+.cd-item:focus-visible,
+.album-category:focus-visible {
+  outline: 3px solid #111;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.shelf-empty {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+}
+
+.drag-ghost {
+  position: fixed !important;
+  z-index: 9999 !important;
+  width: clamp(80px, 20vw, 112px) !important;
+  height: clamp(80px, 20vw, 112px) !important;
+  pointer-events: none !important;
+  opacity: .92;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 8px #0005);
+  transform: translate(-50%, -50%);
+  animation: none !important;
+}
+
+/* CONTROLS */
+.control {
+  width: clamp(38px, 9vw, 44px);
+  height: clamp(38px, 9vw, 44px);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #111;
+  cursor: pointer;
+  transition: background .2s, transform .2s, color .2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.control svg {
+  width: clamp(16px, 4vw, 20px);
+  height: clamp(16px, 4vw, 20px);
+  display: block;
+  pointer-events: none;
+}
+
+.play {
+  width: clamp(44px, 11vw, 50px);
+  height: clamp(44px, 11vw, 50px);
+  border: 1.5px solid #111;
+  background: #ffffffd5;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, .08);
+}
+
+.play svg {
+  width: clamp(20px, 5.2vw, 24px);
+  height: clamp(20px, 5.2vw, 24px);
+}
+
+/* EJECT BUTTON */
+.eject {
+  border: 1px solid #111;
+  background: #ffffffb8;
+  transition: background .2s, transform .2s;
+}
+
+.eject:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* DESKTOP HOVER EFFECTS ONLY (Prevents sticky hovers on touch devices) */
+@media (hover: hover) and (pointer: fine) {
+  .album-category:hover {
+    z-index: 10;
+  }
+
+  .album-category:hover .album-strip {
+    transform: scale(1.035);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+    filter: brightness(1.02);
+  }
+
+  .cd-item:hover {
+    z-index: 10;
+  }
+
+  .cd-item:hover .case-stack {
+    transform: translateY(-8px) scale(1.045);
+    border-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 
+      0 22px 40px -6px rgba(0, 35, 75, 0.24),
+      0 8px 16px rgba(0, 0, 0, 0.08),
+      inset 0 2px 4px rgba(255, 255, 255, 0.98),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.08);
+    filter: brightness(1.04);
+  }
+
+  .cd-item:hover::after {
+    transform: scale(0.85);
+    opacity: 0.45;
+  }
+
+  .control:hover {
+    background: #ffffffb5;
+    transform: scale(1.08);
+  }
+
+  .play:hover {
+    background: #ffffff;
+    transform: scale(1.1);
+  }
+
+  .eject:hover {
+    background: #ffe0e0;
+    transform: scale(1.08) translateY(-1px);
+  }
+}
+
+/* Eject animation: disc slides up and fades out */
+@keyframes eject-out {
+  0%   { transform: translate(calc(-50% + var(--disc-x)), calc(-50% + var(--disc-y))) scale(1);   opacity: 1; }
+  60%  { transform: translate(calc(-50% + var(--disc-x)), calc(-50% + var(--disc-y) - 60px)) scale(1.08); opacity: 0.7; }
+  100% { transform: translate(calc(-50% + var(--disc-x)), calc(-50% + var(--disc-y) - 90px)) scale(0.9);  opacity: 0; }
+}
+
+.album-art.ejecting {
+  animation: eject-out 0.45s cubic-bezier(.4,0,.2,1) forwards !important;
+  pointer-events: none;
+}
+
+.hint {
+  font-size: clamp(10px, 2.4vw, 11px);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+#seek {
+  accent-color: #111;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 767px) {
+  :root {
+    --player-width: 100%;
+    --player-min-height: auto;
+    --player-x: 0px;
+    --player-y: 0px;
+  }
+
+  .frame {
+    padding: 12px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: max(32px, env(safe-area-inset-bottom));
+  }
+
+  .player {
+    border-radius: 20px;
+  }
+
+  .disc-stage {
+    max-width: clamp(260px, 65vw, 360px);
+  }
+
+  .shelf-display-rack {
+    padding: 16px 6px 20px;
+    border-radius: 20px;
+  }
+
+  .shelf-display-rack::after {
+    left: 14px;
+    right: 14px;
+    bottom: 10px;
+    height: 7px;
+  }
+
+  .shelf-track {
+    gap: 16px;
+    padding: 12px 6px 18px;
+  }
+}
+
+/* EXTRA SMALL MOBILE (e.g. iPhone SE, Galaxy Fold 320px) */
+@media (max-width: 360px) {
+  .frame {
+    padding: 8px;
+    padding-left: max(8px, env(safe-area-inset-left));
+    padding-right: max(8px, env(safe-area-inset-right));
+  }
+
+  .disc-stage {
+    max-width: 190px;
+  }
+
+  .control {
+    width: 36px;
+    height: 36px;
+  }
+
+  .play {
+    width: 42px;
+    height: 42px;
+  }
+
+  .shelf-display-rack {
+    padding: 12px 4px 16px;
+    border-radius: 16px;
+  }
+}
+
+/* MOBILE LANDSCAPE MODE */
+@media (max-height: 520px) and (orientation: landscape) {
+  .frame {
+    padding: 10px 24px;
+    min-height: 100vh;
+  }
+
+  .disc-stage {
+    max-width: 170px;
+  }
+
+  .wave {
+    height: 28px;
+  }
+
+  .album-list {
+    max-height: 350px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

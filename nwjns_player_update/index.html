@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>NWJNS CD Player</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Gothic+Expanded+One&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+</head>
+
+<body>
+<!--
+  <div class="video-background">
+    <video autoplay muted loop playsinline preload="auto" disablepictureinpicture tabindex="-1">
+      <source src="assets/pix.mp4" type="video/mp4">
+    </video>
+  </div>
+-->
+  <main class="frame">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,440px)_1fr] xl:grid-cols-[minmax(0,480px)_1fr] gap-8 md:gap-10 items-start">
+        <section id="player" class="player p-4 sm:p-7 md:p-8 flex flex-col items-center text-center w-full max-w-[500px] mx-auto lg:max-w-none"
+          aria-label="NWJNS CD player">
+          <div class="w-full text-left font-black text-xl mb-5">NWJNS</div>
+          <div id="dropZone" class="w-full flex flex-col items-center">
+            <div class="disc-stage">
+              <img id="currentArt" class="album-art" src="images/NWJNS-CD.png" alt="Current NJZ CD" draggable="false">
+              <img id="playerCase" class="player-case" src="images/COVER.png" alt="Empty transparent CD case"
+                draggable="false">
+              <div id="emptyArt" class="empty-art">
+                <span class="font-bold">Drop a CD here</span>
+              </div>
+            </div>
+            <h1 id="trackTitle" class="font-black text-2xl mt-5 mb-1">NJZ</h1>
+            <p id="trackArtist" class="text-xs font-semibold tracking-widest text-black/50 mb-4">NWJNS</p>
+            <div class="w-full flex items-center gap-3">
+              <span id="currentTime" class="text-xs font-bold tabular-nums">0:00</span>
+              <div id="wave" class="wave flex-1" aria-hidden="true">
+                <i style="--h:15px;--d:0ms"></i><i style="--h:28px;--d:60ms"></i>
+                <i style="--h:18px;--d:120ms"></i><i style="--h:35px;--d:180ms"></i>
+                <i style="--h:24px;--d:240ms"></i><i style="--h:40px;--d:300ms"></i>
+                <i style="--h:20px;--d:360ms"></i><i style="--h:32px;--d:420ms"></i>
+                <i style="--h:16px;--d:480ms"></i><i style="--h:37px;--d:540ms"></i>
+                <i style="--h:23px;--d:600ms"></i><i style="--h:34px;--d:660ms"></i>
+                <i style="--h:18px;--d:720ms"></i><i style="--h:30px;--d:780ms"></i>
+                <i style="--h:21px;--d:840ms"></i><i style="--h:38px;--d:900ms"></i>
+                <i style="--h:25px;--d:960ms"></i><i style="--h:33px;--d:1020ms"></i>
+                <i style="--h:19px;--d:1080ms"></i><i style="--h:29px;--d:1140ms"></i>
+                <i style="--h:15px;--d:1200ms"></i><i style="--h:35px;--d:1260ms"></i>
+                <i style="--h:22px;--d:1320ms"></i><i style="--h:31px;--d:1380ms"></i>
+              </div>
+              <span id="duration" class="text-xs font-bold tabular-nums">0:00</span>
+            </div>
+            <input id="seek" type="range" min="0" max="100" value="0"
+              class="w-full accent-black mt-2 h-1 cursor-pointer" aria-label="Seek audio">
+            <div class="controls-row flex items-center justify-center gap-2 sm:gap-3 md:gap-4 mt-4 sm:mt-5 w-full">
+              <button class="control" id="volumeBtn" type="button" title="Mute" aria-label="Toggle mute">
+                <svg class="w-5 h-5 text-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 0 0 2.25 9.75v4.5a2.25 2.25 0 0 0 2.25 2.25h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 0 1-1.06-1.06 8.25 8.25 0 0 0 0-11.668.75.75 0 0 1 0-1.06Z" />
+                  <path d="M15.932 7.757a.75.75 0 0 1 1.061 0 6 6 0 0 1 0 8.486.75.75 0 0 1-1.06-1.061 4.5 4.5 0 0 0 0-6.364.75.75 0 0 1 0-1.06Z" />
+                </svg>
+              </button>
+              <button class="control" id="prevBtn" type="button" title="Previous track" aria-label="Previous track">
+                <svg class="w-5 h-5 text-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M5.25 4.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-1.5 0V5.25a.75.75 0 0 1 .75-.75Zm14.28 1.147a.75.75 0 0 1 .22.533v11.64a.75.75 0 0 1-1.164.624L8.21 12.624a.75.75 0 0 1 0-1.248l10.376-5.82a.75.75 0 0 1 .944.09Z" />
+                </svg>
+              </button>
+              <button class="control play" id="playBtn" type="button" title="Play" aria-label="Play">
+                <svg class="w-6 h-6 text-black ml-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              <button class="control" id="nextBtn" type="button" title="Next track" aria-label="Next track">
+                <svg class="w-5 h-5 text-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.75 4.5a.75.75 0 0 0-.75.75v13.5a.75.75 0 0 0 1.5 0V5.25a.75.75 0 0 0-.75-.75ZM4.47 5.647A.75.75 0 0 0 4.25 6.18v11.64a.75.75 0 0 0 1.164.624l10.376-5.82a.75.75 0 0 0 0-1.248L5.414 5.556a.75.75 0 0 0-.944.09Z" />
+                </svg>
+              </button>
+              <button class="control" id="shuffleBtn" type="button" title="Shuffle" aria-label="Shuffle tracks">
+                <svg class="w-5 h-5 text-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+                </svg>
+              </button>
+              <button class="control eject" id="ejectBtn" type="button" title="Eject CD" aria-label="Eject CD back to shelf">
+                <svg class="w-5 h-5 text-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 4.25a.75.75 0 0 0-.64.36l-7.5 11.5A.75.75 0 0 0 4.5 17.25h15a.75.75 0 0 0 .64-1.14l-7.5-11.5a.75.75 0 0 0-.64-.36ZM4.5 19.5a.75.75 0 0 0 0 1.5h15a.75.75 0 0 0 0-1.5h-15Z" />
+                </svg>
+              </button>
+            </div>
+            <p class="hint mt-4 sm:mt-5 text-center">Tap or drag a CD into the player</p>
+          </div>
+          <audio id="audio" preload="metadata"></audio>
+        </section>
+
+        <section class="pt-2 md:pt-4 lg:pt-8 min-w-0">
+          <button id="albumToggle"
+            class="album-toggle w-full text-center font-black text-2xl sm:text-3xl md:text-4xl tracking-tight mb-5 sm:mb-7 flex items-center justify-center gap-2" type="button"
+            aria-expanded="true">
+            <span>ALBUMS &amp; SINGLES</span>
+            <span id="chevron" class="inline-flex items-center justify-center transition-transform duration-300">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </span>
+          </button>
+          <div id="albumList" class="album-list flex flex-col gap-3">
+            <button class="album-category" type="button" data-category="nwjns ep1" aria-label="Show NWJNS EP1 CDs">
+              <img class="album-strip" src="assets/NWJNS.png" alt="NWJNS Ep1 album">
+            </button>
+            <button class="album-category" type="button" data-category="omg-ditto" aria-label="Show OMG and Ditto CDs">
+              <img class="album-strip" src="assets/OMG DITTO.png" alt="OMG and Ditto">
+            </button>
+            <button class="album-category" type="button" data-category="get-up" aria-label="Show Get Up CDs">
+              <img class="album-strip" src="assets/GETUP.png" alt="Get Up album">
+            </button>
+            <button class="album-category" type="button" data-category="how-sweet"
+              aria-label="Show How Sweet and Bubble Gum CDs">
+              <img class="album-strip" src="assets/HW & BG.png" alt="How Sweet and Bubble Gum">
+            </button>
+            <button class="album-category" type="button" data-category="supernatural"
+              aria-label="Show Supernatural and Right Now CDs">
+              <img class="album-strip" src="assets/SN & RN.png" alt="Supernatural and Right Now">
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <section class="mt-10 sm:mt-12 md:mt-14 w-full text-center">
+        <div class="flex justify-center mb-4 sm:mb-6">
+          <div id="shelfHeading" class="shelf-heading">ALL CDs</div>
+        </div>
+        <div class="shelf-display-rack">
+          <button id="shelfPrevBtn" class="shelf-nav-btn shelf-prev" type="button" aria-label="Scroll left" title="Scroll left">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <div id="cdShelf" class="shelf-track">
+            <!-- Add one .cd-item for each CD. Keep the case and disc images as separate layers. -->
+            <button class="cd-item" type="button" data-category="nwjns ep1" data-title="Attention" data-artist="Newjeans"
+              data-audio="audio/Attention.flac" data-art="images/ATTENTION-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/ATTENTION-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="nwjns ep1" data-title="Hype Boy" data-artist="Newjeans"
+              data-audio="audio/Hype-Boy.flac" data-art="images/HYPEBOY-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/HYPEBOY-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="nwjns ep1" data-title="Cookie" data-artist="Newjeans"
+              data-audio="audio/Cookie.flac" data-art="images/COOKIE-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/COOKIE-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="nwjns ep1" data-title="Hurt" data-artist="Newjeans"
+              data-audio="audio/Hurt.flac" data-art="images/HURT-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/HURT-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="omg-ditto" data-title="OMG" data-artist="Newjeans"
+              data-audio="audio/OMG.flac" data-art="images/OMG-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/OMG-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+            
+            <button class="cd-item" type="button" data-category="omg-ditto" data-title="Ditto" data-artist="Newjeans"
+              data-audio="audio/Ditto.flac" data-art="images/DITTO-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/DITTO-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="get-up" data-title="Get Up" data-artist="Newjeans"
+              data-audio="audio/Get-Up.flac" data-art="images/GETUP-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/GETUP-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="get-up" data-title="New Jeans" data-artist="Newjeans"
+              data-audio="audio/New-Jeans.flac" data-art="images/NEWJEANS-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/NEWJEANS-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="get-up" data-title="Super Shy" data-artist="Newjeans"
+              data-audio="audio/Super-Shy.flac" data-art="images/SUPER-SHY-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/SUPER-SHY-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="get-up" data-title="ETA" data-artist="Newjeans"
+              data-audio="audio/ETA.flac" data-art="images/ETA-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/ETA-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="get-up" data-title="COOL WITH YOU" data-artist="Newjeans"
+              data-audio="audio/COOL-WITH-YOU.flac" data-art="images/COOL-WITH-YOU-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/COOL-WITH-YOU-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="get-up" data-title="ASAP" data-artist="Newjeans"
+              data-audio="audio/ASAP.flac" data-art="images/ASAP-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/ASAP-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="how-sweet" data-title="How Sweet" data-artist="Newjeans"
+              data-audio="audio/How-Sweet.flac" data-art="images/HOW-SWEET-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/HOW-SWEET-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="how-sweet" data-title="Bubble Gum" data-artist="Newjeans"
+              data-audio="audio/Bubble-Gum.flac" data-art="images/BUBBLE-GUM-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/BUBBLE-GUM-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="supernatural" data-title="Super Natural" data-artist="Newjeans"
+              data-audio="audio/Supernatural.flac" data-art="images/SUPERNATURAL-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/SUPERNATURAL-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+
+            <button class="cd-item" type="button" data-category="supernatural" data-title="Right Now" data-artist="Newjeans"
+              data-audio="audio/Right-Now.flac" data-art="images/RIGHT-NOW-CD.png" aria-label="Drag NJZ CD into the player">
+              <span class="case-stack">
+                <span class="shelf-hub" aria-hidden="true"></span>
+                <img class="shelf-disc" src="images/RIGHT-NOW-CD.png" alt="" draggable="false">
+                <img class="shelf-case" src="images/COVER.png" alt="CD case" draggable="false">
+              </span>
+            </button>
+          </div>
+
+          <button id="shelfNextBtn" class="shelf-nav-btn shelf-next" type="button" aria-label="Scroll right" title="Scroll right">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+        <p id="shelfEmpty" class="shelf-empty text-center" hidden>No CDs have been added to this category yet.</p>
+      </section>
+    </div>
+  </main>
+  <script src="js.js"></script>
+</body>
+
+</html>
